@@ -6,6 +6,7 @@ import com.eaglebank.user.api.model.CreateUserRequest;
 import com.eaglebank.user.api.model.UserResponse;
 import com.eaglebank.user.model.UserEntity;
 import com.eaglebank.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,37 +17,33 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         Address address = request.address();
 
-        UserEntity entity = new UserEntity(
-                generateUserId(),
-                request.email(),
-                passwordEncoder.encode(request.password()),
-                request.name(),
-                request.phoneNumber(),
-                address.line1(),
-                address.line2(),
-                address.line3(),
-                address.town(),
-                address.county(),
-                address.postcode(),
-                now,
-                now,
-                false
-        );
+        UserEntity entity = UserEntity.builder()
+                .id(generateUserId())
+                .email(request.email())
+                .passwordHash(passwordEncoder.encode(request.password()))
+                .fullName(request.name())
+                .phoneNumber(request.phoneNumber())
+                .addressLine1(address.line1())
+                .addressLine2(address.line2())
+                .addressLine3(address.line3())
+                .addressTown(address.town())
+                .addressCounty(address.county())
+                .addressPostcode(address.postcode())
+                .createdAt(now)
+                .updatedAt(now)
+                .deleted(false)
+                .build();
 
         userRepository.save(entity);
 
