@@ -1,0 +1,28 @@
+# Maven output
+target/
+**/target/
+
+# IDE files
+.idea/
+.project
+.classpath
+.settings/
+.factorypath
+*.iml
+.vscode/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Local configs
+.env
+.env.*
+
+# Spring-specific
+spring.log

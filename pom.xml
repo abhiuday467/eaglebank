@@ -1,0 +1,64 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.eaglebank</groupId>
+    <artifactId>eaglebank-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>eaglebank-parent</name>
+
+    <properties>
+        <java.version>17</java.version>
+        <springdoc.version>2.6.0</springdoc.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.eaglebank</groupId>
+                <artifactId>eaglebank-user-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eaglebank</groupId>
+                <artifactId>eaglebank-user-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eaglebank</groupId>
+                <artifactId>eaglebank-account</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eaglebank</groupId>
+                <artifactId>eaglebank-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.eaglebank</groupId>
+                <artifactId>eaglebank-transaction</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>eaglebank-user-api</module>
+        <module>eaglebank-user-impl</module>
+        <module>eaglebank-account</module>
+        <module>eaglebank-security</module>
+        <module>eaglebank-transaction</module>
+        <module>eaglebank-app</module>
+    </modules>
+</project>
