@@ -1,4 +1,4 @@
-# Modular Monolith Architecture Blueprint (v4)
+# Modular Monolith Architecture Blueprint
 
 ## 1. Architectural Summary
 * **Project Structure:** Multi-module build. Strict modularity where API modules (`user-api`) are physical **siblings** to implementation modules (`user-impl`).
