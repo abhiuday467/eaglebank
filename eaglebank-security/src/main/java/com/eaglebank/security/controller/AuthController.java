@@ -1,13 +1,11 @@
 package com.eaglebank.security.controller;
 
-import com.eaglebank.security.repository.AuthRepository;
-import com.eaglebank.security.service.JwtService;
+import com.eaglebank.security.service.AuthService;
+import com.eaglebank.security.service.AuthService.TokenResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,27 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/auth")
 public class AuthController {
 
-    private final AuthRepository authRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final AuthService authService;
 
-    public AuthController(AuthRepository authRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
-        this.authRepository = authRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest req) {
-        var credentials = authRepository.findByEmail(req.email())
-                .orElseThrow(() -> new BadCredentialsException("Invalid"));
-
-        if (!passwordEncoder.matches(req.password(), credentials.passwordHash())) {
-            throw new BadCredentialsException("Invalid");
-        }
-
-        String token = jwtService.generateToken(credentials.userId());
-        return ResponseEntity.ok(new TokenResponse(token));
+        TokenResponse token = authService.login(req.email(), req.password());
+        return ResponseEntity.ok(token);
     }
 
     public record LoginRequest(
@@ -46,6 +33,4 @@ public class AuthController {
     ) {
     }
 
-    public record TokenResponse(String token) {
-    }
 }

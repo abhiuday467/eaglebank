@@ -6,22 +6,29 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
 
 @Service
-public class JwtService {
+class JwtService {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
     private final String secret;
+    private final Clock clock;
 
     JwtService(@Value("${security.jwt.secret}") String secret) {
+        this(secret, Clock.systemUTC());
+    }
+
+    JwtService(String secret, Clock clock) {
         this.secret = secret;
+        this.clock = clock;
     }
 
     public String generateToken(String userId) {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-        long issuedAt = Instant.now().getEpochSecond();
+        long issuedAt = Instant.now(clock).getEpochSecond();
         String payloadJson = "{\"sub\":\"" + userId + "\",\"iat\":" + issuedAt + "}";
 
         String header = base64UrlEncode(headerJson.getBytes(StandardCharsets.UTF_8));
