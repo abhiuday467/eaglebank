@@ -6,6 +6,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 class SecurityServiceImpl implements SecurityService {
 
@@ -25,5 +27,11 @@ class SecurityServiceImpl implements SecurityService {
         }
         String hashed = passwordEncoder.encode(rawPassword);
         authRepository.save(userId, email, hashed);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<String> findEmailByUserId(String userId) {
+        return authRepository.findEmailByUserId(userId);
     }
 }

@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -83,5 +84,26 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getUser_ShouldReturn200_WhenUserExists() throws Exception {
+        UserResponse response = new UserResponse(
+                "usr-123",
+                "John Doe",
+                new Address("Line 1", "Line 2", null, "Town", "County", "POST1"),
+                "+1234567890",
+                "john@example.com",
+                OffsetDateTime.now(ZoneOffset.UTC),
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
+
+        when(userService.getUserById("usr-123")).thenReturn(response);
+
+        mockMvc.perform(get("/v1/users/usr-123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("usr-123"))
+                .andExpect(jsonPath("$.name").value("John Doe"))
+                .andExpect(jsonPath("$.email").value("john@example.com"));
     }
 }

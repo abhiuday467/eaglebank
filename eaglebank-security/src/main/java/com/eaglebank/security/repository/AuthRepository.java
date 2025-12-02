@@ -60,6 +60,20 @@ public class AuthRepository {
         });
     }
 
+    public Optional<String> findEmailByUserId(String userId) {
+        String sql = """
+                SELECT email
+                FROM schema_auth.credentials
+                WHERE user_id = :userId AND is_deleted = FALSE
+                """;
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("userId", userId), rs -> {
+            if (rs.next()) {
+                return Optional.ofNullable(rs.getString("email"));
+            }
+            return Optional.empty();
+        });
+    }
+
     public record Credentials(String userId, String passwordHash) {
     }
 }
