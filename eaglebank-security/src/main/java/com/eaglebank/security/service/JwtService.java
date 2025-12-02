@@ -1,6 +1,7 @@
 package com.eaglebank.security.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -16,20 +17,25 @@ class JwtService {
     private static final String HMAC_SHA256 = "HmacSHA256";
     private final String secret;
     private final Clock clock;
+    private final long ttlSeconds;
 
-    JwtService(@Value("${security.jwt.secret}") String secret) {
-        this(secret, Clock.systemUTC());
+    @Autowired
+    JwtService(@Value("${security.jwt.secret}") String secret,
+               @Value("${security.jwt.ttl-seconds:3600}") long ttlSeconds) {
+        this(secret, ttlSeconds, Clock.systemUTC());
     }
 
-    JwtService(String secret, Clock clock) {
+    JwtService(String secret, long ttlSeconds, Clock clock) {
         this.secret = secret;
         this.clock = clock;
+        this.ttlSeconds = ttlSeconds;
     }
 
     public String generateToken(String userId) {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         long issuedAt = Instant.now(clock).getEpochSecond();
-        String payloadJson = "{\"sub\":\"" + userId + "\",\"iat\":" + issuedAt + "}";
+        long expiresAt = issuedAt + ttlSeconds;
+        String payloadJson = "{\"sub\":\"" + userId + "\",\"iat\":" + issuedAt + ",\"exp\":" + expiresAt + "}";
 
         String header = base64UrlEncode(headerJson.getBytes(StandardCharsets.UTF_8));
         String payload = base64UrlEncode(payloadJson.getBytes(StandardCharsets.UTF_8));
