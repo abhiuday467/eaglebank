@@ -1,0 +1,9 @@
+CREATE SCHEMA IF NOT EXISTS schema_auth;
+
+CREATE TABLE schema_auth.credentials (
+    user_id VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
