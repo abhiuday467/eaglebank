@@ -29,6 +29,13 @@ The OpenAPI JSON is available at:
 http://localhost:8080/v3/api-docs
 ```
 
+## Local Database (Docker)
+Start Postgres via Docker Compose from the repo root:
+```bash
+docker compose up -d
+```
+This brings up `postgres:15-alpine` exposed on `localhost:5432` with credentials `eagleuser` / `eaglepass` and database `eaglebank`. Data persists in the `postgres_data` volume. Stop with `docker compose down` when finished.
+
 ## Module Notes
 - `eaglebank-app` depends on module peers (`user-api`, `user-impl`, `account`, `security`, `transaction`) and hosts the Boot entrypoint.
 - No business logic is implemented yet; endpoints are present as stubs for scaffolding. Use Swagger to inspect available routes.

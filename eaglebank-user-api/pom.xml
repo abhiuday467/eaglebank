@@ -9,4 +9,16 @@
     <artifactId>eaglebank-user-api</artifactId>
     <packaging>jar</packaging>
     <name>eaglebank-user-api</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+    </dependencies>
 </project>
