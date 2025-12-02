@@ -38,9 +38,13 @@
             <scope>test</scope>
         </dependency>
 <!-- Project dependencies -->
-         <dependency>
+        <dependency>
             <groupId>com.eaglebank</groupId>
             <artifactId>eaglebank-user-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.eaglebank</groupId>
+            <artifactId>eaglebank-security</artifactId>
         </dependency>
     </dependencies>
 </project>

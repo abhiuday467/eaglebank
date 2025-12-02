@@ -4,3 +4,8 @@ Issue: Flyway migration version collision across modules
 - Pros (global versioning): Simple single Flyway instance; works with current Boot auto-config; no extra wiring.
 - Cons (global versioning): Teams must coordinate version numbers across modules; harder to keep module-local version history.
 - Alternative: Configure separate Flyway beans per schema with isolated `locations` and `schemas`, allowing independent version sequences but requiring custom config and migration ordering awareness.
+
+Issue: No structured logging in auth/user flows
+- Context: Security and user services/controllers currently emit no logs for auth attempts, failures (e.g., bad credentials), or duplicate email conflicts. This makes troubleshooting and auditability difficult.
+- Impact: Harder to trace issues in production and to support security monitoring; no visibility into suspicious login activity.
+- Suggested fix: Add SLF4J logging with appropriate levels (INFO for successful login/create, WARN for invalid credentials/duplicate email, ERROR for unexpected failures) in `AuthService/AuthController` and `UserServiceImpl`, ensuring no sensitive data (passwords) is logged.
