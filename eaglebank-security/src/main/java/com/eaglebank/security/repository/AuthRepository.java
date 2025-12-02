@@ -42,4 +42,24 @@ public class AuthRepository {
             return Optional.empty();
         });
     }
+
+    public Optional<Credentials> findByEmail(String email) {
+        String sql = """
+                SELECT user_id, password_hash
+                FROM schema_auth.credentials
+                WHERE email = :email AND is_deleted = FALSE
+                """;
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("email", email), rs -> {
+            if (rs.next()) {
+                return Optional.of(new Credentials(
+                        rs.getString("user_id"),
+                        rs.getString("password_hash")
+                ));
+            }
+            return Optional.empty();
+        });
+    }
+
+    public record Credentials(String userId, String passwordHash) {
+    }
 }

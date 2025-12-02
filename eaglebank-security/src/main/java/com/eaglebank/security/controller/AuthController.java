@@ -29,14 +29,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest req) {
-        var credentials = authRepository.findPasswordHashByEmail(req.email())
+        var credentials = authRepository.findByEmail(req.email())
                 .orElseThrow(() -> new BadCredentialsException("Invalid"));
 
-        if (!passwordEncoder.matches(req.password(), credentials)) {
+        if (!passwordEncoder.matches(req.password(), credentials.passwordHash())) {
             throw new BadCredentialsException("Invalid");
         }
 
-        String token = jwtService.generateToken(req.email());
+        String token = jwtService.generateToken(credentials.userId());
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
