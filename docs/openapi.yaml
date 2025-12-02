@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: Take home tech task
   version: v1.0.0
@@ -11,45 +11,57 @@ tags:
     description: Manage transactions on a bank account
   - name: user
     description: Manage a user
+  - name: auth
+    description: Authentication and JWT token management
+
+# Global security: all endpoints require JWT bearer by default
+# Individual operations can override this with `security: []`
+security:
+  - bearerAuth: []
+
 paths:
   /v1/auth/login:
-      post:
-        tags:
-          - auth
-        description: Authenticate a user and return a JWT token
-        operationId: loginUser
-        requestBody:
-          description: User credentials
+    post:
+      tags:
+        - auth
+      description: Authenticate a user and return a JWT token
+      operationId: loginUser
+      # Login itself is public – no JWT required
+      security: []
+      requestBody:
+        description: User credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Authentication successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginRequest'
-          required: true
-        responses:
-          '200':
-            description: Authentication successful
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/TokenResponse'
-          '401':
-            description: Invalid credentials
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ErrorResponse'
-          '500':
-            description: An unexpected error occurred
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /v1/accounts:
     post:
       tags:
         - account
       description: Create a new bank account
       operationId: createAccount
+      # Inherits global bearerAuth security
       security:
         - bearerAuth: []
       requestBody:
@@ -116,6 +128,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
   /v1/accounts/{accountNumber}:
     get:
       tags:
@@ -395,6 +408,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
   /v1/accounts/{accountNumber}/transactions/{transactionId}:
     get:
       tags:
@@ -415,7 +429,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^tan-[A-Za-z0-9]$
+            pattern: ^tan-[A-Za-z0-9]+$
       security:
         - bearerAuth: []
       responses:
@@ -455,12 +469,15 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
   /v1/users:
     post:
       tags:
         - user
       description: Create a new user
       operationId: createUser
+      # User creation is public (no JWT required)
+      security: []
       requestBody:
         description: Create a new user
         content:
@@ -477,12 +494,17 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         '400':
           description: Invalid details supplied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
         '500':
           description: An unexpected error occurred
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
   /v1/users/{userId}:
     get:
       tags:
@@ -649,23 +671,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     LoginRequest:
-          type: object
-          required:
-            - email
-            - password
-          properties:
-            email:
-              type: string
-              format: email
-              examples:
-                - "user@example.com"
-            password:
-              type: string
-              examples:
-                - "password123"
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          example: "password123"
+
     TokenResponse:
       type: object
       required:
@@ -674,8 +696,8 @@ components:
         token:
           type: string
           description: JWT Bearer token
-          examples:
-            - "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
     CreateBankAccountRequest:
       type: object
       required:
@@ -684,25 +706,23 @@ components:
       properties:
         name:
           type: string
-          examples:
-            - "Personal Bank Account"
-            - "My Account"
+          example: "Personal Bank Account"
         accountType:
           type: string
-          enum: 
+          enum:
             - "personal"
+
     UpdateBankAccountRequest:
       type: object
       properties:
         name:
           type: string
-          examples:
-            - "Personal Bank Account"
-            - "My Account"
+          example: "Personal Bank Account"
         accountType:
           type: string
-          enum: 
+          enum:
             - "personal"
+
     ListBankAccountsResponse:
       type: object
       required:
@@ -711,7 +731,8 @@ components:
         accounts:
           type: array
           items:
-             $ref: "#/components/schemas/BankAccountResponse"
+            $ref: "#/components/schemas/BankAccountResponse"
+
     BankAccountResponse:
       type: object
       required:
@@ -727,18 +748,16 @@ components:
         accountNumber:
           type: string
           format: ^01\d{6}$
-          examples:
-            - "01234567"
-            - "01765432"
+          example: "01234567"
         sortCode:
           type: string
-          enum: 
+          enum:
             - "10-10-10"
         name:
           type: string
         accountType:
           type: string
-          enum: 
+          enum:
             - "personal"
         balance:
           type: number
@@ -746,9 +765,7 @@ components:
           minimum: 0.00
           maximum: 10000.00
           description: "Currency amount with up to two decimal places"
-          examples:
-            - 0.00
-            - 1000.00
+          example: 0.00
         currency:
           type: string
           enum:
@@ -759,6 +776,7 @@ components:
         updatedTimestamp:
           type: string
           format: 'date-time'
+
     CreateTransactionRequest:
       type: object
       required:
@@ -772,20 +790,19 @@ components:
           minimum: 0.00
           maximum: 10000.00
           description: "Currency amount with up to two decimal places"
-          examples:
-            - 10.99
-            - 1000.00
+          example: 10.99
         currency:
           type: string
           enum:
             - "GBP"
         type:
           type: string
-          enum: 
+          enum:
             - "deposit"
             - "withdrawal"
         reference:
           type: string
+
     ListTransactionsResponse:
       type: object
       required:
@@ -794,7 +811,8 @@ components:
         transactions:
           type: array
           items:
-             $ref: "#/components/schemas/TransactionResponse"
+            $ref: "#/components/schemas/TransactionResponse"
+
     TransactionResponse:
       type: object
       required:
@@ -804,11 +822,10 @@ components:
         - type
         - createdTimestamp
       properties:
-        id: 
+        id:
           type: string
-          pattern: ^tan-[A-Za-z0-9]$
-          examples:
-            - tan-123abc
+          pattern: ^tan-[A-Za-z0-9]+$
+          example: tan-123abc
         amount:
           type: number
           format: double
@@ -820,7 +837,7 @@ components:
             - "GBP"
         type:
           type: string
-          enum: 
+          enum:
             - "deposit"
             - "withdrawal"
         reference:
@@ -828,11 +845,11 @@ components:
         userId:
           type: string
           format: ^usr-[A-Za-z0-9]+$
-          examples: 
-            - usr-abc123
+          example: usr-abc123
         createdTimestamp:
           type: string
           format: 'date-time'
+
     CreateUserRequest:
       type: object
       required:
@@ -843,41 +860,7 @@ components:
       properties:
         name:
           type: string
-          examples:
-            - "Test User"
-        address:
-          type: object
-          required:
-            - line1
-            - town
-            - county
-            - postcode
-          properties:
-            line1:
-              type: string
-            line2:
-              type: string
-            line3:
-              type: string
-            town:
-              type: string
-            county:
-              type: string
-            postcode:
-              type: string
-        phoneNumber:
-          type: string
-          format: ^\+[1-9]\d{1,14}$
-        email:
-          type: string
-          format: email    
-    UpdateUserRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          examples:
-            - "Test User"
+          example: "Test User"
         address:
           type: object
           required:
@@ -904,6 +887,40 @@ components:
         email:
           type: string
           format: email
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Test User"
+        address:
+          type: object
+          required:
+            - line1
+            - town
+            - county
+            - postcode
+          properties:
+            line1:
+              type: string
+            line2:
+              type: string
+            line3:
+              type: string
+            town:
+              type: string
+            county:
+              type: string
+            postcode:
+              type: string
+        phoneNumber:
+          type: string
+          format: ^\+[1-9]\d{1,14}$
+        email:
+          type: string
+          format: email
+
     UserResponse:
       type: object
       required:
@@ -920,8 +937,7 @@ components:
           format: ^usr-[A-Za-z0-9]+$
         name:
           type: string
-          examples:
-            - "Test User"
+          example: "Test User"
         address:
           type: object
           required:
@@ -954,6 +970,7 @@ components:
         updatedTimestamp:
           type: string
           format: 'date-time'
+
     ErrorResponse:
       type: object
       required:
@@ -961,6 +978,7 @@ components:
       properties:
         message:
           type: string
+
     BadRequestErrorResponse:
       type: object
       required:
@@ -984,6 +1002,7 @@ components:
                 type: string
               type:
                 type: string
+
   securitySchemes:
     bearerAuth:
       type: http
