@@ -1,11 +1,13 @@
 package com.eaglebank.app.exception;
 
+import com.eaglebank.user.exception.EmailAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.List;
 
@@ -22,6 +24,18 @@ public class GlobalExceptionHandler {
 
         BadRequestErrorResponse response = new BadRequestErrorResponse("Validation failed", details);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(EmailAlreadyExistsException ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorResponse> handleDbConflict(DuplicateKeyException ex) {
+        ErrorResponse response = new ErrorResponse("User already exists (concurrency conflict)");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(Exception.class)

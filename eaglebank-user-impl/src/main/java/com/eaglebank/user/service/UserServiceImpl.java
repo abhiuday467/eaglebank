@@ -4,6 +4,7 @@ import com.eaglebank.user.api.UserService;
 import com.eaglebank.user.api.model.Address;
 import com.eaglebank.user.api.model.CreateUserRequest;
 import com.eaglebank.user.api.model.UserResponse;
+import com.eaglebank.user.exception.EmailAlreadyExistsException;
 import com.eaglebank.user.model.UserEntity;
 import com.eaglebank.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,10 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(CreateUserRequest request) {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         Address address = request.address();
+
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException(request.email());
+        }
 
         UserEntity entity = UserEntity.builder()
                 .id(generateUserId())

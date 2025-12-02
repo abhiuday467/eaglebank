@@ -14,6 +14,12 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean existsByEmail(String email) {
+        String sql = "SELECT 1 FROM schema_user.users WHERE email = :email LIMIT 1";
+        Integer found = jdbcTemplate.query(sql, new MapSqlParameterSource("email", email), rs -> rs.next() ? 1 : null);
+        return found != null;
+    }
+
     public void save(UserEntity user) {
         String sql = """
                 INSERT INTO schema_user.users (id, email, password_hash, full_name, phone_number,
