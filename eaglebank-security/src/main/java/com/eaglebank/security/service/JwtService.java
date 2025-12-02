@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.Base64;
 
 @Service
-class JwtService {
+public class JwtService {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
     private final String secret;
@@ -19,7 +19,7 @@ class JwtService {
         this.secret = secret;
     }
 
-    String generateToken(String userId) {
+    public String generateToken(String userId) {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         long issuedAt = Instant.now().getEpochSecond();
         String payloadJson = "{\"sub\":\"" + userId + "\",\"iat\":" + issuedAt + "}";

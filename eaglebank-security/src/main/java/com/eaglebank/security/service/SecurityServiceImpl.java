@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional
 class SecurityServiceImpl implements SecurityService {
 
     private final AuthRepository authRepository;
@@ -19,6 +18,7 @@ class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
+    @Transactional
     public void createCredentials(String userId, String email, String rawPassword) {
         if (authRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException(email);

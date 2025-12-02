@@ -4,11 +4,10 @@ import com.eaglebank.user.api.UserService;
 import com.eaglebank.user.api.model.Address;
 import com.eaglebank.user.api.model.CreateUserRequest;
 import com.eaglebank.user.api.model.UserResponse;
-import com.eaglebank.user.exception.EmailAlreadyExistsException;
 import com.eaglebank.user.model.UserEntity;
 import com.eaglebank.user.repository.UserRepository;
+import com.eaglebank.security.service.SecurityService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,26 +16,24 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
-@Transactional
+
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final SecurityService securityService;
 
     @Override
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         Address address = request.address();
 
-        if (userRepository.existsByEmail(request.email())) {
-            throw new EmailAlreadyExistsException(request.email());
-        }
+        String userId = generateUserId();
+        securityService.createCredentials(userId, request.email(), request.password());
 
         UserEntity entity = UserEntity.builder()
-                .id(generateUserId())
-                .email(request.email())
-                .passwordHash(passwordEncoder.encode(request.password()))
+                .id(userId)
                 .fullName(request.name())
                 .phoneNumber(request.phoneNumber())
                 .addressLine1(address.line1())
@@ -64,7 +61,7 @@ public class UserServiceImpl implements UserService {
                         entity.getAddressPostcode()
                 ),
                 entity.getPhoneNumber(),
-                entity.getEmail(),
+                request.email(),
                 entity.getCreatedAt().atOffset(ZoneOffset.UTC),
                 entity.getUpdatedAt().atOffset(ZoneOffset.UTC)
         );

@@ -14,26 +14,18 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean existsByEmail(String email) {
-        String sql = "SELECT 1 FROM schema_user.users WHERE email = :email LIMIT 1";
-        Integer found = jdbcTemplate.query(sql, new MapSqlParameterSource("email", email), rs -> rs.next() ? 1 : null);
-        return found != null;
-    }
-
     public void save(UserEntity user) {
         String sql = """
-                INSERT INTO schema_user.users (id, email, password_hash, full_name, phone_number,
+                INSERT INTO schema_user.profiles (user_id, full_name, phone_number,
                     address_line1, address_line2, address_line3, address_town, address_county,
                     address_postcode, created_at, updated_at, is_deleted)
-                VALUES (:id, :email, :passwordHash, :fullName, :phoneNumber,
+                VALUES (:id, :fullName, :phoneNumber,
                     :addressLine1, :addressLine2, :addressLine3, :addressTown, :addressCounty,
                     :addressPostcode, :createdAt, :updatedAt, :isDeleted)
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", user.getId())
-                .addValue("email", user.getEmail())
-                .addValue("passwordHash", user.getPasswordHash())
                 .addValue("fullName", user.getFullName())
                 .addValue("phoneNumber", user.getPhoneNumber())
                 .addValue("addressLine1", user.getAddressLine1())
