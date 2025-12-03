@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Date;
 
 @Service
 public class JwtService {
@@ -37,17 +38,15 @@ public class JwtService {
     }
 
     String generateToken(String userId) {
-        String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-        long issuedAt = Instant.now(clock).getEpochSecond();
-        long expiresAt = issuedAt + ttlSeconds;
-        String payloadJson = "{\"sub\":\"" + userId + "\",\"iat\":" + issuedAt + ",\"exp\":" + expiresAt + "}";
+        long nowMillis = System.currentTimeMillis();
+        long expMillis = nowMillis + ttlSeconds * 1000; // Convert seconds to ms if ttlSeconds is in seconds
 
-        String header = base64UrlEncode(headerJson.getBytes(StandardCharsets.UTF_8));
-        String payload = base64UrlEncode(payloadJson.getBytes(StandardCharsets.UTF_8));
-        String signingInput = header + "." + payload;
-        String signature = base64UrlEncode(hmacSha256(signingInput));
-
-        return signingInput + "." + signature;
+        return Jwts.builder()
+                .subject(userId)                            // Sets "sub"
+                .issuedAt(new Date(nowMillis))              // Sets "iat"
+                .expiration(new Date(expMillis))            // Sets "exp"
+                .signWith(getSignInKey())                   // Signs with your SecretKey object
+                .compact();
     }
 
     public String validateTokenAndGetUserId(String token) {

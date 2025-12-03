@@ -18,16 +18,21 @@ mvn -pl eaglebank-app spring-boot:run
 
 The app starts on port 8080 by default. Adjust via `server.port` if needed.
 
-## Swagger UI
+## Swagger UI (local app)
 Once the app is running, open Swagger UI in your browser:
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
-The OpenAPI JSON is available at:
+## Swagger UI (static OpenAPI via Docker)
+If you want to view the provided `openapi.yaml` without relying on the in-app UI, run Swagger UI in Docker from the repo root:
+```bash
+docker run -p 8082:8080 \
+  -e SWAGGER_JSON=/app/openapi.yaml \
+  -v "$(pwd)/eaglebank-app/src/main/resources/openapi.yaml:/app/openapi.yaml" \
+  swaggerapi/swagger-ui
 ```
-http://localhost:8080/v3/api-docs
-```
+Then browse to `http://localhost:8082` to view the docs.
 
 ## Local Database (Docker)
 Start Postgres via Docker Compose from the repo root:

@@ -4,6 +4,9 @@ info:
   version: v1.0.0
   description: |-
     We want you to create a REST API for Eagle Bank which conforms to this OpenAPI specification which allows a user to create, fetch, update and delete a bank account and deposit or withdraw money from the account. These will be stored as transactions against a bank account which be retrieved but not modified or deleted.
+servers:
+  - url: http://localhost:8080
+    description: Local Spring Boot Server
 tags:
   - name: account
     description: Manage a bank account
@@ -518,7 +521,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^usr-[A-Za-z0-9]+$
+            pattern: "^usr-[a-zA-Z0-9-]+$"
       security:
         - bearerAuth: []
       responses:

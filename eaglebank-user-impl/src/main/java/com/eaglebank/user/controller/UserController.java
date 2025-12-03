@@ -31,7 +31,6 @@ public class UserController {
     
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable String userId) {
-        System.out.println("Coming in abhiuday endpoint");
         UserResponse response = userService.getUserById(userId);
         return ResponseEntity.ok(response);
     }
