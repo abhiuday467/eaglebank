@@ -4,15 +4,18 @@ info:
   version: v1.0.0
   description: |-
     We want you to create a REST API for Eagle Bank which conforms to this OpenAPI specification which allows a user to create, fetch, update and delete a bank account and deposit or withdraw money from the account. These will be stored as transactions against a bank account which be retrieved but not modified or deleted.
+servers:
+  - url: http://localhost:8080
+    description: Local Spring Boot Server
 tags:
   - name: account
-    description: Manage a bank account
+    description: \[Not implemented\] Manage a bank account
   - name: transaction
-    description: Manage transactions on a bank account
+    description: \[Not implemented\] Manage transactions on a bank account
   - name: user
-    description: Manage a user
+    description: \[Some implemented\] Manage a user
   - name: auth
-    description: Authentication and JWT token management
+    description: Authentication and JWT token managemen
 
 # Global security: all endpoints require JWT bearer by default
 # Individual operations can override this with `security: []`
@@ -470,11 +473,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /v1/users:
+  /v1/users [Implemented]:
     post:
       tags:
         - user
-      description: Create a new user
+      description: Create a new user 
       operationId: createUser
       # User creation is public (no JWT required)
       security: []
@@ -505,7 +508,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /v1/users/{userId}:
+  /v1/users/{userId} [Implemented]:
     get:
       tags:
         - user
@@ -518,7 +521,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^usr-[A-Za-z0-9]+$
+            pattern: "^usr-[a-zA-Z0-9-]+$"
       security:
         - bearerAuth: []
       responses:

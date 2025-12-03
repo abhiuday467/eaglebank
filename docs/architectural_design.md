@@ -21,31 +21,21 @@ root-project/
 ├── pom.xml                      (Aggregator)
 │
 ├── eaglebank-user-api/          (Compiled JAR: Interfaces & DTOs)
-│   └── src/main/java/com/eaglebank/user/api/UserService.java
 │
 ├── eaglebank-user-impl/         (Runtime: User Logic, Password Hashing, JDBC)
-│   ├── src/main/java/com/eaglebank/user/service/UserServiceImpl.java
-│   ├── src/main/resources/db/migration/user/V1__create_user_schema.sql
-│   └── src/test/java/com/eaglebank/user/
-│       ├── service/
-│       │   └── UserServiceTest.java       <-- UNIT: Mocks Repository, tests Hashing logic
-│       └── repo/
-│           └── UserRepositoryTest.java    <-- INTEGRATION: Uses Testcontainers to test "FOR SHARE" locking
+│   ├── src/main/java/com/eaglebank/user/...
+│   ├── src/main/resources/db/migration/user/...
+│   └── src/test/java/com/eaglebank/user/...
 │
-├── eaglebank-account/           (Runtime: Depends on user-api)
-│   ├── src/main/java/com/eaglebank/account/service/AccountService.java
-│   ├── src/main/resources/db/migration/account/V1__create_account_schema.sql
-│   └── src/test/java/com/eaglebank/account/
-│       ├── service/
-│       │   └── AccountServiceTest.java    <-- UNIT: Mocks UserService API, tests Check-then-Act logic
-│       └── repo/
-│           └── AccountRepositoryTest.java <-- INTEGRATION: Uses Testcontainers to test SQL inserts
+├── eaglebank-security/          (Runtime: Depends on user-api; implements auth/JWT)
+│   ├── src/main/java/com/eaglebank/security/...
+│   └── src/test/java/com/eaglebank/security/...
 │
-├── eaglebank-security/          (Runtime: Depends on user-api)
-│   ├── src/main/java/com/eaglebank/security/controller/AuthController.java
-│   └── src/test/java/com/eaglebank/security/
-│       └── controller/
-│           └── AuthControllerTest.java    <-- UNIT/INTEGRATION: Tests JWT generation & Password matching
+├── eaglebank-account/           (Placeholder module; depends on user-api, no main sources yet)
+│   └── src/test/java/com/eaglebank/account/...
+│
+├── eaglebank-transaction/       (Placeholder module; no sources yet)
 │
 └── eaglebank-app/               (Main Boot Application)
     └── src/main/resources/application.properties
+```

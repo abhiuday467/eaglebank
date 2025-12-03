@@ -6,4 +6,6 @@ import com.eaglebank.user.api.model.UserResponse;
 public interface UserService {
 
     UserResponse createUser(CreateUserRequest request);
+
+    UserResponse getUserById(String userId);
 }

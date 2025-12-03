@@ -4,6 +4,7 @@ import com.eaglebank.user.api.UserService;
 import com.eaglebank.user.api.model.Address;
 import com.eaglebank.user.api.model.CreateUserRequest;
 import com.eaglebank.user.api.model.UserResponse;
+import com.eaglebank.user.exception.UserNotFoundException;
 import com.eaglebank.user.model.UserEntity;
 import com.eaglebank.user.repository.UserRepository;
 import com.eaglebank.security.service.SecurityService;
@@ -49,6 +50,26 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(entity);
 
+        return mapToResponse(entity, request.email());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getUserById(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        String email = securityService.findEmailByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        return mapToResponse(user, email);
+    }
+
+    private String generateUserId() {
+        return "usr-" + UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private UserResponse mapToResponse(UserEntity entity, String email) {
         return new UserResponse(
                 entity.getId(),
                 entity.getFullName(),
@@ -61,13 +82,9 @@ public class UserServiceImpl implements UserService {
                         entity.getAddressPostcode()
                 ),
                 entity.getPhoneNumber(),
-                request.email(),
+                email,
                 entity.getCreatedAt().atOffset(ZoneOffset.UTC),
                 entity.getUpdatedAt().atOffset(ZoneOffset.UTC)
         );
-    }
-
-    private String generateUserId() {
-        return "usr-" + UUID.randomUUID().toString().replace("-", "");
     }
 }
