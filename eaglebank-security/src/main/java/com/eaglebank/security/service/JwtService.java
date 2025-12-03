@@ -38,14 +38,14 @@ public class JwtService {
     }
 
     String generateToken(String userId) {
-        long nowMillis = System.currentTimeMillis();
-        long expMillis = nowMillis + ttlSeconds * 1000; // Convert seconds to ms if ttlSeconds is in seconds
+        Instant now = Instant.now(clock);
+        Instant exp = now.plusSeconds(ttlSeconds);
 
         return Jwts.builder()
-                .subject(userId)                            // Sets "sub"
-                .issuedAt(new Date(nowMillis))              // Sets "iat"
-                .expiration(new Date(expMillis))            // Sets "exp"
-                .signWith(getSignInKey())                   // Signs with your SecretKey object
+                .subject(userId)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(exp))
+                .signWith(getSignInKey())
                 .compact();
     }
 

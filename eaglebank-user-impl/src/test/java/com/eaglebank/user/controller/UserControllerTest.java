@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(TestApplication.class)
+@Import({TestApplication.class, TestExceptionHandler.class})
 class UserControllerTest {
 
     @Autowired
@@ -116,6 +116,17 @@ class UserControllerTest {
 
     @Test
     void getUser_ShouldReturn403_WhenRequestingDifferentUser() throws Exception {
+        UserResponse response = new UserResponse(
+                "usr-other",
+                "Other User",
+                new Address("Line 1", "Line 2", null, "Town", "County", "POST1"),
+                "+1234567890",
+                "other@example.com",
+                OffsetDateTime.now(ZoneOffset.UTC),
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
+        when(userService.getUserById("usr-other")).thenReturn(response);
+
         mockMvc.perform(get("/v1/users/usr-other")
                         .with(request -> {
                             request.setUserPrincipal(new UsernamePasswordAuthenticationToken("usr-123", null, Collections.emptyList()));
