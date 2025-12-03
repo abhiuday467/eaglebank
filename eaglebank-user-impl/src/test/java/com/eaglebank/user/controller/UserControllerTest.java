@@ -4,6 +4,7 @@ import com.eaglebank.user.api.UserService;
 import com.eaglebank.user.api.model.Address;
 import com.eaglebank.user.api.model.CreateUserRequest;
 import com.eaglebank.user.api.model.UserResponse;
+import com.eaglebank.user.exception.UserNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -13,10 +14,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Collections;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -100,10 +103,36 @@ class UserControllerTest {
 
         when(userService.getUserById("usr-123")).thenReturn(response);
 
-        mockMvc.perform(get("/v1/users/usr-123"))
+        mockMvc.perform(get("/v1/users/usr-123")
+                        .with(request -> {
+                            request.setUserPrincipal(new UsernamePasswordAuthenticationToken("usr-123", null, Collections.emptyList()));
+                            return request;
+                        }))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("usr-123"))
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john@example.com"));
+    }
+
+    @Test
+    void getUser_ShouldReturn403_WhenRequestingDifferentUser() throws Exception {
+        mockMvc.perform(get("/v1/users/usr-other")
+                        .with(request -> {
+                            request.setUserPrincipal(new UsernamePasswordAuthenticationToken("usr-123", null, Collections.emptyList()));
+                            return request;
+                        }))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getUser_ShouldReturn404_WhenUserNotFound() throws Exception {
+        when(userService.getUserById("usr-missing")).thenThrow(new UserNotFoundException("usr-missing"));
+
+        mockMvc.perform(get("/v1/users/usr-missing")
+                        .with(request -> {
+                            request.setUserPrincipal(new UsernamePasswordAuthenticationToken("usr-missing", null, Collections.emptyList()));
+                            return request;
+                        }))
+                .andExpect(status().isNotFound());
     }
 }
