@@ -3,6 +3,7 @@
 ## Prerequisites
 - Java 17 installed and on your `PATH`
 - Maven 3.9+ installed
+- Docker installed
 
 ## Build
 Run from the repo root to build all modules:
@@ -24,7 +25,7 @@ Once the app is running, open Swagger UI in your browser:
 http://localhost:8080/swagger-ui/index.html
 ```
 
-## Swagger UI (static OpenAPI via Docker)
+## OpenAPI.yaml via Docker
 If you want to view the provided `openapi.yaml` without relying on the in-app UI, run Swagger UI in Docker from the repo root:
 ```bash
 docker run -p 8082:8080 \

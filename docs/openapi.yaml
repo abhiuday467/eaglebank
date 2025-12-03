@@ -9,13 +9,13 @@ servers:
     description: Local Spring Boot Server
 tags:
   - name: account
-    description: Manage a bank account
+    description: \[Not implemented\] Manage a bank account
   - name: transaction
-    description: Manage transactions on a bank account
+    description: \[Not implemented\] Manage transactions on a bank account
   - name: user
-    description: Manage a user
+    description: \[Some implemented\] Manage a user
   - name: auth
-    description: Authentication and JWT token management
+    description: Authentication and JWT token managemen
 
 # Global security: all endpoints require JWT bearer by default
 # Individual operations can override this with `security: []`
@@ -473,11 +473,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /v1/users:
+  /v1/users [Implemented]:
     post:
       tags:
         - user
-      description: Create a new user
+      description: Create a new user 
       operationId: createUser
       # User creation is public (no JWT required)
       security: []
@@ -508,7 +508,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /v1/users/{userId}:
+  /v1/users/{userId} [Implemented]:
     get:
       tags:
         - user
